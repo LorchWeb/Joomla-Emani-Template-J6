@@ -1,14 +1,19 @@
 <?php
 defined('_JEXEC') or die('Restricted index access');
+$wa->registerScript('j51.template.mmenu', 'templates/' . $this->template . '/js/mmenu-light.js', [], ['defer' => true]);
+$wa->registerScript('j51.template.waypoints', 'templates/' . $this->template . '/js/noframework.waypoints.min.js', [], ['defer' => true]);
+$wa->registerScript('j51.template.jarallax', 'templates/' . $this->template . '/js/jarallax.min.js', [], ['defer' => true]);
+$wa->registerScript('j51.template.sticky', 'templates/' . $this->template . '/js/sticky.js', [], ['defer' => true]);
+$wa->registerScript('j51.template.script', 'templates/' . $this->template . '/js/scripts.js', [], ['defer' => true]);
 
 // ✅ jQuery wird von Joomla6 Core bereitgestellt - NICHT selbst laden!
 // $wa->useScript('template.jquery'); // ENTFERNT
 
 // MMenu
-$wa->useScript('template.mmenu');
+$wa->useScript('j51.template.mmenu');
 
 // Animate on Scroll
-$wa->useScript('template.waypoints');
+$wa->useScript('j51.template.waypoints');
 
 if ($sidecol_responsive_pos == 'after') {
     // ✅ KORRIGIERT: addStyleDeclaration -> WebAssetManager
@@ -21,24 +26,30 @@ if ($sidecol_responsive_pos == 'after') {
     ');
 }
 
-if (!$this->params->get('top1_bg') 
-    || !$this->params->get('top2_bg') 
-    || !$this->params->get('top3_bg') 
-    || !$this->params->get('bottom1_bg') 
-    || !$this->params->get('bottom2_bg') 
-    || !$this->params->get('bottom3_bg')) {
+if ($this->params->get('top1_parallax') == '1'
+    || $this->params->get('top2_parallax') == '1'
+    || $this->params->get('top3_parallax') == '1'
+    || $this->params->get('bottom1_parallax') == '1'
+    || $this->params->get('bottom2_parallax') == '1'
+    || $this->params->get('bottom3_parallax') == '1'
+    || $this->params->get('base1_parallax') == '1'
+    || $this->params->get('base2_parallax') == '1') {
     
     // ✅ Parallax Background
-    $wa->useScript('template.jarallax');
+    $wa->useScript('j51.template.jarallax');
     
     // ✅ KORRIGIERT: addScriptDeclaration -> addInlineScript
     $wa->addInlineScript("
-        jarallax(document.querySelectorAll('.jarallax'));
+        window.addEventListener('load', function () {
+            if (typeof jarallax === 'function') {
+                jarallax(document.querySelectorAll('.jarallax'));
+            }
+        });
     ");
 }
 
 if ($this->params->get('sticky_sw')) {
-    $wa->useScript('template.sticky');
+    $wa->useScript('j51.template.sticky');
     
     $wa->addInlineScript('
         window.addEventListener("load", function(){
@@ -52,11 +63,11 @@ if ($this->params->get('sticky_sw')) {
 
 
 // ✅ Script Options - OK, keine Änderung nötig
-$wa->addScriptOptions('j51_template', [
+$this->addScriptOptions('j51_template', [
     'scrolltoOffset'    => $this->params->get('scrollto_offset', -55),
     'mobileMenuPosition' => $this->params->get('mobile_menu_position', 'left'),
     'mobileMenuTitle'   => $this->params->get('mobile_menu_title', 'Menu'),
 ]);
 
-$wa->useScript('template.script');
+$wa->useScript('j51.template.script');
 

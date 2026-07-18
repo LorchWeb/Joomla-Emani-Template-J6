@@ -54,17 +54,17 @@
       "uri": "bonsaicss/bonsai-utilities.css"
     },
     {
-      "name": "template.local-fonts",
-      "type": "style",
-      "uri": "css/local-fonts.css"
-    },
-    {
       "name": "template.mmenu",
       "type": "script",
       "uri": "mmenu-light.js",
       "attributes": {
         "defer": true
       }
+    },
+    {
+      "name": "template.jquery",
+      "type": "script",
+      "uri": "jquery-3.6.0.min.js"
     },
     {
       "name": "template.waypoints",
@@ -86,6 +86,22 @@
       "name": "template.sticky",
       "type": "script",
       "uri": "sticky.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "j51.template.masonry",
+      "type": "script",
+      "uri": "masonry.pkgd.min.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "j51.template.imagesloaded",
+      "type": "script",
+      "uri": "imagesloaded.pkgd.min.js",
       "attributes": {
         "defer": true
       }
@@ -119,41 +135,39 @@
       }
     },
     {
-      "name": "fontawesome",
+      "name": "searchtools",
+      "type": "style",
+      "uri": "system/searchtools/searchtools.min.css"
+    },
+    {
+      "name": "fontawesome.joomla",
+      "type": "style",
+      "uri": "system/joomla-fontawesome.min.css"
+    },
+    {
+      "name": "fontawesome.base",
       "type": "style",
       "uri": "fontawesome/fontawesome.min.css"
     },
     {
       "name": "fontawesome.regular",
       "type": "style",
-      "uri": "fontawesome/regular.min.css",
-      "dependencies": [
-        "fontawesome"
-      ]
+      "uri": "fontawesome/regular.min.css"
     },
     {
       "name": "fontawesome.brands",
       "type": "style",
-      "uri": "fontawesome/brands.min.css",
-      "dependencies": [
-        "fontawesome"
-      ]
+      "uri": "fontawesome/brands.min.css"
     },
     {
       "name": "fontawesome.solid",
       "type": "style",
-      "uri": "fontawesome/solid.min.css",
-      "dependencies": [
-        "fontawesome"
-      ]
+      "uri": "fontawesome/solid.min.css"
     },
     {
       "name": "fontawesome.shims",
       "type": "style",
-      "uri": "fontawesome/v4-shims.min.css",
-      "dependencies": [
-        "fontawesome"
-      ]
+      "uri": "fontawesome/v4-shims.min.css"
     }
   ]
 }

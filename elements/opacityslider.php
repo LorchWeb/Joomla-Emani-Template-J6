@@ -1,9 +1,8 @@
 <?php
 
-defined('JPATH_PLATFORM') or die();
+defined('_JEXEC') or die;
 
 use Joomla\CMS\Form\Field\NumberField;
-use Joomla\CMS\HTML\HTMLHelper;
 
 class JFormFieldOpacitySlider extends NumberField
 {
@@ -25,9 +24,6 @@ class JFormFieldOpacitySlider extends NumberField
 
         $value = (float) $this->value;
         $value = empty($value) ? $this->min : $value;
-
-        // jQuery nur noch wenn wirklich nötig
-        HTMLHelper::_('jquery.framework');
 
         return '<span class="opacityvalue">0.0</span>'
             . '<input type="range" name="' . $this->name . '" id="' . $this->id . '"'

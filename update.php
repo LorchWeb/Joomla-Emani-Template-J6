@@ -2,17 +2,17 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Filesystem\File;
-use Joomla\CMS\Filesystem\Folder;
 use Joomla\CMS\Installer\InstallerScript;
 use Joomla\CMS\Language\Text;
+use Joomla\Database\DatabaseInterface;
+use Joomla\Filesystem\File;
+use Joomla\Filesystem\Folder;
 
 class J51_EmaniInstallerScript extends InstallerScript
 {
     protected function fixTemplateMode(): void
     {
-        // ✅ Factory::getContainer()->get('DatabaseDriver') ist korrekt für J4/J5
-        $db = Factory::getContainer()->get('DatabaseDriver');
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
 
         $query = $db->getQuery(true)
             ->update($db->quoteName('#__template_styles'))
@@ -23,7 +23,6 @@ class J51_EmaniInstallerScript extends InstallerScript
         try {
             $db->setQuery($query)->execute();
         } catch (\Exception $e) {
-            // ✅ \Exception mit Backslash für globalen Namespace
             echo Text::sprintf('JLIB_DATABASE_ERROR_FUNCTION_FAILED', $e->getCode(), $e->getMessage()) . '<br>';
             return;
         }
@@ -54,13 +53,13 @@ class J51_EmaniInstallerScript extends InstallerScript
         ];
 
         foreach ($foldersToDelete as $folder) {
-            if (Folder::exists(JPATH_ROOT . $folder)) {
+            if (is_dir(JPATH_ROOT . $folder)) {
                 Folder::delete(JPATH_ROOT . $folder);
             }
         }
 
         foreach ($filesToDelete as $file) {
-            if (File::exists(JPATH_ROOT . $file)) {
+            if (is_file(JPATH_ROOT . $file)) {
                 File::delete(JPATH_ROOT . $file);
             }
         }

@@ -5,31 +5,34 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 
-$app = Factory::getApplication();
-// ✅ Factory::getDocument() deprecated - über $this verwenden
-$this->language  = $this->document->language;
-$this->direction = $this->document->direction;
+$app   = Factory::getApplication();
+$input = $app->getInput();
+$wa    = $this->getWebAssetManager();
 
-$wa = $this->getWebAssetManager();
-$wa->useStyle('template.nexus.min');
-$wa->useStyle('fontawesome');
+$templatePath = 'templates/' . $this->template . '/css/';
+
+$wa->registerAndUseStyle('j51.template.error', $templatePath . 'error.css')
+    ->registerAndUseStyle('j51.fontawesome', $templatePath . 'fontawesome/fontawesome.min.css')
+    ->registerAndUseStyle('j51.fontawesome.solid', $templatePath . 'fontawesome/solid.min.css', [], [], ['j51.fontawesome']);
 
 $params   = $app->getTemplate(true)->params;
-$option   = $app->input->getCmd('option', '');
-$view     = $app->input->getCmd('view', '');
-$layout   = $app->input->getCmd('layout', '');
-$task     = $app->input->getCmd('task', '');
-$itemid   = $app->input->getCmd('Itemid', '');
+$option   = $input->getCmd('option', '');
+$view     = $input->getCmd('view', '');
+$layout   = $input->getCmd('layout', '');
+$task     = $input->getCmd('task', '');
+$itemid   = $input->getCmd('Itemid', '');
 $sitename = htmlspecialchars($app->get('sitename'), ENT_QUOTES, 'UTF-8');
+$renderModules = $app->getIdentity() && $app->getLanguage();
+
+$this->setTitle(($this->title ?: $sitename) . ' - ' . $this->error->getMessage());
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $this->language; ?>" dir="<?php echo $this->direction; ?>">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title><?php echo $this->title; ?> - <?php echo htmlspecialchars($this->error->getMessage(), ENT_QUOTES, 'UTF-8'); ?></title>
+    <jdoc:include type="metas" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="<?php echo $this->baseurl; ?>/templates/<?php echo $this->template; ?>/css/error.css" />
-    <link rel="shortcut icon" href="<?php echo $this->baseurl; ?>/templates/<?php echo $this->template; ?>/favicon.ico" type="image/vnd.microsoft.icon" />
+    <jdoc:include type="styles" />
+    <jdoc:include type="scripts" />
 </head>
 <body class="site <?php echo $option
     . ' view-' . $view
@@ -63,7 +66,7 @@ $sitename = htmlspecialchars($app->get('sitename'), ENT_QUOTES, 'UTF-8');
 
     <div class="page-redirect">
         <?php echo Text::_('JERROR_LAYOUT_GO_TO_THE_HOME_PAGE'); ?>
-        <a href="<?php echo $this->baseurl; ?>/index.php">
+        <a href="<?php echo Uri::root(); ?>">
             <span class="fa fa-home"></span> <?php echo Text::_('JERROR_LAYOUT_HOME_PAGE'); ?>
         </a>
     </div>
@@ -89,6 +92,8 @@ $sitename = htmlspecialchars($app->get('sitename'), ENT_QUOTES, 'UTF-8');
         </div>
     <?php endif; ?>
 
-    <jdoc:include type="modules" name="debug" style="none" />
+    <?php if ($renderModules) : ?>
+        <jdoc:include type="modules" name="debug" style="none" />
+    <?php endif; ?>
 </body>
 </html>

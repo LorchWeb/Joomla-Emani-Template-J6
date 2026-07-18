@@ -4,96 +4,142 @@ defined('_JEXEC') or die('Restricted index access');
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Session\Session;
+use Joomla\Database\DatabaseInterface;
 
 class TplJ51EmaniHelper
 {
-    public static function importAjax()
+    private const TEMPLATE_NAME = 'j51_emani';
+
+    public static function importAjax(): void
     {
         self::checkAccess();
 
-        $input    = Factory::getApplication()->input;
+        $app      = Factory::getApplication();
+        $input    = $app->getInput();
         $contents = $input->json->getRaw();
+        $styleId  = $input->getInt('id');
+        $params   = self::normalisePresetJson($contents);
+        $db       = Factory::getContainer()->get(DatabaseInterface::class);
 
-        // Check if it is valid JSON
-        $contents = @json_encode(@json_decode($contents));
-        if (!$contents)
-        {
-            throw new \RuntimeException('No content available or an invalid format is uploaded');
-        }
+        self::getStyle($db, $styleId);
+        self::saveStyleParams($db, $styleId, $params);
 
-        $db = Factory::getDbo();
-        $db->setQuery(
-            'UPDATE #__template_styles SET params = ' 
-            . $db->quote($contents) 
-            . ' WHERE id = ' 
-            . $input->getInt('id')
-        );
-        $db->execute();
-
-        Factory::getApplication()->enqueueMessage('Uploaded successfully settings');
+        $app->enqueueMessage(Text::_('TPL_J51_EMANI_PRESET_IMPORT_SUCCESS'));
     }
 
-    public static function exportAjax()
+    public static function exportAjax(): string
     {
         self::checkAccess();
 
-        $db    = Factory::getDbo();
-        $query = $db->getQuery(true)
-            ->select('*')
-            ->from('#__template_styles')
-            ->where('id = ' . (int) Factory::getApplication()->input->getInt('id'));
-
-        $db->setQuery($query);
-        $style = $db->loadObject();
+        $app   = Factory::getApplication();
+        $input = $app->getInput();
+        $db    = Factory::getContainer()->get(DatabaseInterface::class);
+        $style = self::getStyle($db, $input->getInt('id'));
 
         // Download als JSON
         header('Content-Type: application/json');
-        header('Content-Disposition: attachment; filename="' . $style->template . '-preset.json"');
+        header('Content-Disposition: attachment; filename="' . self::TEMPLATE_NAME . '-preset.json"');
 
         return $style->params;
     }
 
-    public static function loadPresetAjax()
+    public static function loadPresetAjax(): void
     {
         self::checkAccess();
 
-        $input    = Factory::getApplication()->input;
-        $template = $input->getCmd('template');
-        $preset   = $input->getCmd('preset');
-        $path     = JPATH_ROOT . '/templates/' . $template . '/presets/' . $preset . '.json';
+        $app       = Factory::getApplication();
+        $input     = $app->getInput();
+        $preset    = $input->getCmd('preset');
+        $styleId   = $input->getInt('id');
+        $presetDir = realpath(JPATH_ROOT . '/templates/' . self::TEMPLATE_NAME . '/presets');
+        $path      = $presetDir ? realpath($presetDir . '/' . $preset . '.json') : false;
 
-        if (!file_exists($path))
-        {
+        if (!$path || !str_starts_with($path, $presetDir . DIRECTORY_SEPARATOR) || !is_file($path)) {
             throw new \RuntimeException(
-                'File ' . (defined('JDEBUG') && JDEBUG ? $path : '') . ' does not exist!'
+                Text::_('TPL_J51_EMANI_PRESET_NOT_FOUND')
             );
         }
 
         $presetData = file_get_contents($path);
 
-        $db = Factory::getDbo();
-        $db->setQuery(
-            'UPDATE #__template_styles SET params = ' 
-            . $db->quote($presetData) 
-            . ' WHERE id = ' 
-            . $input->getInt('id')
-        );
-        $db->execute();
+        if ($presetData === false) {
+            throw new \RuntimeException(Text::_('TPL_J51_EMANI_PRESET_READ_FAILED'));
+        }
 
-        Factory::getApplication()->enqueueMessage('Applied successfully preset ' . $preset);
+        $params = self::normalisePresetJson($presetData);
+        $db     = Factory::getContainer()->get(DatabaseInterface::class);
+
+        self::getStyle($db, $styleId);
+        self::saveStyleParams($db, $styleId, $params);
+
+        $app->enqueueMessage(Text::sprintf('TPL_J51_EMANI_PRESET_LOAD_SUCCESS', $preset));
     }
 
-    private static function checkAccess()
+    private static function normalisePresetJson(string $contents): string
     {
-        // ✅ KORRIGIERT: \JSession::checkToken() -> Session::checkToken()
-        if (!Session::checkToken('get'))
-        {
+        try {
+            $data = json_decode($contents, false, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new \RuntimeException(Text::_('TPL_J51_EMANI_PRESET_INVALID_JSON'), 400, $exception);
+        }
+
+        if (!is_object($data)) {
+            throw new \RuntimeException(Text::_('TPL_J51_EMANI_PRESET_OBJECT_REQUIRED'), 400);
+        }
+
+        try {
+            return json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        } catch (\JsonException $exception) {
+            throw new \RuntimeException(Text::_('TPL_J51_EMANI_PRESET_PROCESS_FAILED'), 400, $exception);
+        }
+    }
+
+    private static function getStyle(DatabaseInterface $db, int $styleId): object
+    {
+        if ($styleId < 1) {
+            throw new \RuntimeException(Text::_('TPL_J51_EMANI_STYLE_ID_INVALID'), 400);
+        }
+
+        $query = $db->createQuery()
+            ->select([
+                $db->quoteName('id'),
+                $db->quoteName('template'),
+                $db->quoteName('params'),
+            ])
+            ->from($db->quoteName('#__template_styles'))
+            ->where($db->quoteName('id') . ' = ' . $styleId)
+            ->where($db->quoteName('template') . ' = ' . $db->quote(self::TEMPLATE_NAME))
+            ->where($db->quoteName('client_id') . ' = 0');
+
+        $style = $db->setQuery($query)->loadObject();
+
+        if (!$style) {
+            throw new \RuntimeException(Text::_('TPL_J51_EMANI_STYLE_NOT_FOUND'), 404);
+        }
+
+        return $style;
+    }
+
+    private static function saveStyleParams(DatabaseInterface $db, int $styleId, string $params): void
+    {
+        $query = $db->createQuery()
+            ->update($db->quoteName('#__template_styles'))
+            ->set($db->quoteName('params') . ' = ' . $db->quote($params))
+            ->where($db->quoteName('id') . ' = ' . $styleId)
+            ->where($db->quoteName('template') . ' = ' . $db->quote(self::TEMPLATE_NAME))
+            ->where($db->quoteName('client_id') . ' = 0');
+
+        $db->setQuery($query)->execute();
+    }
+
+    private static function checkAccess(): void
+    {
+        if (!Session::checkToken('get')) {
             throw new \RuntimeException(Text::_('JINVALID_TOKEN'), 403);
         }
 
-        if (!Factory::getUser()->authorise('core.create', 'com_templates'))
-        {
-            throw new \RuntimeException('Not allowed!!', 403);
+        if (!Factory::getApplication()->getIdentity()->authorise('core.edit', 'com_templates')) {
+            throw new \RuntimeException(Text::_('TPL_J51_EMANI_ACTION_NOT_ALLOWED'), 403);
         }
     }
 }
