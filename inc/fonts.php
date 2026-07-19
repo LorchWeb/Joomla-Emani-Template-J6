@@ -38,7 +38,22 @@ $googlefonts  = array_keys(array_flip($googlefonts));
 $font_subset  = str_replace(' ', '', $font_subset);
 $font_weights = str_replace(' ', '', $font_weights);
 
-$wa->registerAndUseStyle(
-    'template.local-fonts',
-    'templates/' . $this->template . '/css/local-fonts.css'
-);
+foreach ($googlefonts as $fontName) {
+    $fontUrl = 'https://fonts.googleapis.com/css?'
+        . http_build_query(
+            [
+                'family' => $fontName . ':' . $font_weights,
+                'subset' => $font_subset,
+                'display' => 'swap',
+            ],
+            '',
+            '&',
+            PHP_QUERY_RFC3986
+        );
+
+    $wa->registerAndUseStyle(
+        'j51.template.google-font.' . md5($fontUrl),
+        $fontUrl,
+        ['version' => 'auto']
+    );
+}

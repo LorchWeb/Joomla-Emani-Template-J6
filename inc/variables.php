@@ -1,16 +1,16 @@
 <?php
-efined('_JEXEC') or die('Restricted index access');
+defined('_JEXEC') or die('Restricted index access');
 
 use Joomla\CMS\Helper\ModuleHelper;
 
 // Font Face Styling
-$body_fontstyle       = $this->params->get('body_fontstyle');
-$h1head_fontstyle     = $this->params->get('h1head_fontstyle');
-$articlehead_fontstyle = $this->params->get('articlehead_fontstyle');
-$modulehead_fontstyle = $this->params->get('modulehead_fontstyle');
-$h4head_fontstyle     = $this->params->get('h4head_fontstyle');
-$hornav_fontstyle     = $this->params->get('hornav_fontstyle');
-$logo_fontstyle       = $this->params->get('logo_fontstyle');
+$body_fontstyle        = $this->params->get('body_fontstyle', 'Montserrat');
+$h1head_fontstyle      = $this->params->get('h1head_fontstyle', 'Montserrat');
+$articlehead_fontstyle = $this->params->get('articlehead_fontstyle', 'Montserrat');
+$modulehead_fontstyle  = $this->params->get('modulehead_fontstyle', 'Montserrat');
+$h4head_fontstyle      = $this->params->get('h4head_fontstyle', 'Montserrat');
+$hornav_fontstyle      = $this->params->get('hornav_fontstyle', 'Montserrat');
+$logo_fontstyle        = $this->params->get('logo_fontstyle', 'Montserrat');
 
 // Logo and slogan
 $logoimagefile    = $this->params->get('logoimagefile');
@@ -27,7 +27,7 @@ $menu_name = $this->params->get('hornav_menu', 'mainmenu');
 $module = ModuleHelper::getModule('mod_menu', 'hornav_menu');
 if ($module) {
     $module->params = "menutype=$menu_name\nshowAllChildren=1";
-    $hornav = ModuleHelper::renderModule($module);
+    $hornav = ModuleHelper::renderModule($module, ['style' => 'none']);
 } else {
     $hornav = '';
 }
@@ -36,7 +36,7 @@ if ($module) {
 $module = ModuleHelper::getModule('mod_menu', 'hornav_menu');
 if ($module) {
     $module->params = "menutype=$menu_name\nshowAllChildren=1\ntag_id=mobile";
-    $hornav_mobile = ModuleHelper::renderModule($module);
+    $hornav_mobile = ModuleHelper::renderModule($module, ['style' => 'none']);
 } else {
     $hornav_mobile = '';
 }
@@ -46,7 +46,7 @@ $menu_name_footer = $this->params->get('footer_menu', 'mainmenu');
 $module = ModuleHelper::getModule('mod_menu', 'footer_menu');
 if ($module) {
     $module->params = "menutype=$menu_name_footer\nendLevel=1";
-    $footermenu = ModuleHelper::renderModule($module);
+    $footermenu = ModuleHelper::renderModule($module, ['style' => 'none']);
 } else {
     $footermenu = '';
 }

@@ -9,40 +9,28 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Helper\ModuleHelper;
 
 // The application
-$app = Factory::getApplication();
-$wa  = $this->getWebAssetManager();
+$app      = Factory::getApplication();
+$input    = $app->getInput();
+$document = $this;
+$wa       = $this->getWebAssetManager();
 
 // KORRIGIERT: Kein JLoader mehr
 require_once JPATH_THEMES . '/j51_emani/vendor/autoload.php';
 
-$document        = Factory::getDocument();
-
-// KORRIGIERT: getUser() ersetzt
-$user            = Factory::getApplication()->getIdentity();
-
 $this->language  = $document->language;
 $this->direction = $document->direction;
 
-// KORRIGIERT: getCfg() entfernt - sitename direkt holen
-$siteName = $this->params->get('siteName');
-$sitename = $app->get('sitename');
-
-// ENTFERNT: $document->setHtml5(true) - nicht mehr nötig in J6
-
-$params = $app->getTemplate(true)->params;
+$params = $this->params;
 
 // Detecting Active Variables
-$option    = $app->input->getCmd('option', '');
-$view      = $app->input->getCmd('view', '');
-$layout    = $app->input->getCmd('layout', '');
-$task      = $app->input->getCmd('task', '');
-$itemid    = $app->input->getCmd('Itemid', '');
-$sitename  = $app->get('sitename');
+$option    = $input->getCmd('option', '');
+$view      = $input->getCmd('view', '');
+$layout    = $input->getCmd('layout', '');
+$task      = $input->getCmd('task', '');
+$itemid    = $input->getCmd('Itemid', '');
 $menu      = $app->getMenu()->getActive();
-$menuParams = new \Joomla\Registry\Registry();
 $pageclass = $menu !== null ? $menu->getParams()->get('pageclass_sfx', '') : '';
 $editing   = false;
 
@@ -227,17 +215,6 @@ $helper = new \J51\Helper\BlockHelper();
 	</div>
 
 	<?php echo $this->params->get('body_custom_code'); ?>
-
-	<?php if (!$this->params->get('top1_bg') || !$this->params->get('top2_bg') || !$this->params->get('top3_bg') || !$this->params->get('bottom1_bg') || !$this->params->get('bottom2_bg') || !$this->params->get('bottom3_bg')) { ?>
-		<?php $document->addScript('templates/' . $this->template . '/js/jarallax.min.js'); ?>
-		<script>
-			jarallax(document.querySelectorAll('.jarallax'), {
-				speed: 0.5,
-				disableParallax: /iPad|iPhone|iPod|Android/,
-				disableVideo: /iPad|iPhone|iPod|Android/
-			});
-		</script>
-	<?php } ?>
 
 	<jdoc:include type="modules" name="debug" />
 </body>

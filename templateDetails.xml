@@ -2,7 +2,7 @@
 <extension version="6.0" type="template" client="site" method="upgrade">
     <name>j51_emani</name>
     <version>2.1.0</version>
-    <creationDate>2025</creationDate>
+    <creationDate>2026-07</creationDate>
     <author>Joomla51 (maintained by community)</author>
     <authorEmail>info@joomla51.com</authorEmail>
     <authorUrl>http://www.joomla51.com</authorUrl>
@@ -31,12 +31,12 @@
 		<div class="preset__load">
 			<h6>Load Preset</h6>
 			<select name="preset" class="form-control">
-				<option value="Example_Style_1" selected>Example Style 1</option>
-				<option value="Example_Style_2" selected>Example Style 2</option>
-				<option value="Example_Style_3" selected>Example Style 3</option>
-				<option value="Example_Style_4" selected>Example Style 4</option>
-				<option value="Example_Style_5" selected>Example Style 5</option>
-				<option value="Example_Style_6" selected>Example Style 6</option>
+				<option value="Example_Style_1">Example Style 1</option>
+				<option value="Example_Style_2">Example Style 2</option>
+				<option value="Example_Style_3">Example Style 3</option>
+				<option value="Example_Style_4">Example Style 4</option>
+				<option value="Example_Style_5">Example Style 5</option>
+				<option value="Example_Style_6">Example Style 6</option>
 				<option selected value="Default">Default</option>
 			</select>
 			<a class="preset-loader btn btn-primary mt-2">Load Preset</a>
@@ -85,6 +85,9 @@
   
   <languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.tpl_j51_emani.ini</language>
+		<language tag="en-GB">en-GB/en-GB.tpl_j51_emani.sys.ini</language>
+		<language tag="de-DE">de-DE/de-DE.tpl_j51_emani.ini</language>
+		<language tag="de-DE">de-DE/de-DE.tpl_j51_emani.sys.ini</language>
 	</languages>
 
 	<positions>
@@ -98,7 +101,6 @@
 		<position>showcase-1d</position>
 		<position>showcase-1e</position>
 		<position>showcase-1f</position>
-		<position>showcase-1a</position>
 		<position>top-1a</position>
 		<position>top-1b</position>
 		<position>top-1c</position>

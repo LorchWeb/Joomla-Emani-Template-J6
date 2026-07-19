@@ -16,13 +16,16 @@ if ($this->params->get('customcss_sw') == "1") {
 
     if ($customcss_source == "default") {
         // ✅ Bereits in joomla.asset.json registriert
-        $wa->useStyle('template.custom');
+        $wa->registerAndUseStyle(
+            'j51.template.custom',
+            'templates/' . $this->template . '/css/custom.css'
+        );
     }
 
     if ($customcss_source == "template") {
         // ✅ registerAndUseStyle statt addStyleSheet
         $wa->registerAndUseStyle(
-            'template.custom.tpl',
+            'j51.template.custom.tpl',
             'templates/' . $this->template . '/css/custom.css'
         );
     }
@@ -30,7 +33,7 @@ if ($this->params->get('customcss_sw') == "1") {
     if ($customcss_source == "media") {
         // ✅ registerAndUseStyle statt addStyleSheet
         $wa->registerAndUseStyle(
-            'template.custom.media',
+            'j51.template.custom.media',
             'media/templates/site/' . $this->template . '/css/custom.css'
         );
     }
@@ -38,7 +41,7 @@ if ($this->params->get('customcss_sw') == "1") {
     if ($customcss_source == "url" && !empty($customcss_url)) {
         // ✅ Externe URL
         $wa->registerAndUseStyle(
-            'template.custom.url',
+            'j51.template.custom.url',
             $customcss_url
         );
     }

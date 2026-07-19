@@ -1,10 +1,8 @@
 <?php
 
-defined('JPATH_PLATFORM') or die();
+defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
-use Joomla\CMS\Uri\Uri;
 
 class JFormFieldCheckbox extends FormField
 {
@@ -12,23 +10,6 @@ class JFormFieldCheckbox extends FormField
 
     protected function getInput(): string
     {
-        // Determine template filepath
-        $basePath = str_replace(
-            DIRECTORY_SEPARATOR,
-            '/',
-            str_replace(JPATH_SITE, Uri::base(), dirname(__DIR__))
-        );
-        $basePath = str_replace('/administrator/', '', $basePath);
-
-        // Add script via WebAssetManager
-        $wa = Factory::getApplication()->getDocument()->getWebAssetManager();
-        $wa->registerAndUseScript(
-            'j51.ibutton',
-            $basePath . '/elements/js/ibutton.js',
-            [],
-            ['defer' => true]
-        );
-
         // Field attributes
         $class    = $this->element['class']
             ? ' class="' . htmlspecialchars((string) $this->element['class'], ENT_COMPAT, 'UTF-8') . '"'

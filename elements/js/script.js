@@ -10,16 +10,59 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
+  const translate = function (key, fallback) {
+    if (Joomla.Text && typeof Joomla.Text._ === 'function') {
+      return Joomla.Text._(key, fallback);
+    }
+
+    return fallback;
+  };
+
   // ✅ jQuery-Wrapper entfernt - natives JS + Joomla API
   // Internes jQuery für DOM-Manipulation (Joomla stellt es bereit)
   const $ = window.jQuery;
 
   if (typeof $ === 'undefined') {
-    console.error('j51 script.js: jQuery not available');
+    console.error(translate('TPL_J51_EMANI_JS_JQUERY_MISSING', 'j51 script.js: jQuery is not available.'));
     return;
   }
 
-  const j51Template = 'j51_emani';
+  const templateOptions = Joomla.getOptions('j51.template') || {};
+  const templateName    = templateOptions.name || 'j51_emani';
+  const styleId         = Number(templateOptions.styleId || 0);
+  const csrfToken       = Joomla.getOptions('csrf.token');
+
+  const buildAjaxUrl = function (method, format, extraParams) {
+    const params = new URLSearchParams({
+      option: 'com_ajax',
+      template: templateName,
+      format: format,
+      method: method,
+      id: String(styleId)
+    });
+
+    Object.entries(extraParams || {}).forEach(function ([key, value]) {
+      params.set(key, value);
+    });
+
+    if (csrfToken) {
+      params.set(csrfToken, '1');
+    }
+
+    return 'index.php?' + params.toString();
+  };
+
+  const requestOptionsAreValid = function () {
+    if (styleId > 0 && csrfToken) {
+      return true;
+    }
+
+    Joomla.renderMessages({
+      warning: [translate('TPL_J51_EMANI_JS_ACTION_PREPARE_FAILED', 'The template action could not be prepared. Please reload the page.')]
+    });
+
+    return false;
+  };
 
   // ── Width100 ──────────────────────────────────────────────────────────────
   $('.control-group:has(.width100)').addClass('container-width100');
@@ -64,6 +107,10 @@ document.addEventListener('DOMContentLoaded', function () {
     $topLegends.each(function () {
       const $legend      = $(this).find('h3');
       const $params      = $legend.data('params');
+      const $mediaParams = $params.filter(function () {
+        return $(this).find('joomla-field-media').length;
+      });
+      const $directParams = $params.not($mediaParams);
       const $subLegends  = $params.filter('.sub-legend-group');
       const $topGroup    = $('<div />').addClass('top-group').appendTo($pane);
 
@@ -71,19 +118,23 @@ document.addEventListener('DOMContentLoaded', function () {
         .addClass('sub-group sub-group-direct')
         .appendTo($topGroup)
         .append(
-          $('<div />').addClass('sub-group-inner').append($params)
+          $('<div />').addClass('sub-group-inner').append($directParams)
         );
 
       $subLegends.each(function () {
         const $subLegendGroup = $(this);
         const $subLegend      = $subLegendGroup.find('h3');
         const $subParams      = $subLegend.data('params');
+        const $subMediaParams = $subParams.filter(function () {
+          return $(this).find('joomla-field-media').length;
+        });
+        const $subDirectParams = $subParams.not($subMediaParams);
 
         $('<div />').addClass('sub-group').appendTo($topGroup).append(
           $('<div />').addClass('sub-group-inner')
             .append($subLegendGroup)
             .append(
-              $('<div />').addClass('sub-group-params').append($subParams)
+              $('<div />').addClass('sub-group-params').append($subDirectParams)
             )
         );
       });
@@ -99,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .addClass('sub-group-direct');
 
       // Referenz speichern
+      $(this).data('media-params', $mediaParams);
       $(this).data('top-group', $topGroup);
     });
   });
@@ -109,9 +161,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const $tabPane           = $legendGroup.closest('joomla-tab-element');
     const $otherLegendGroups = $tabPane.find('.top-legend-group').not($legendGroup);
     const $otherTopGroups    = $tabPane.find('.top-group').not($topGroup);
+    const $mediaParams       = $legendGroup.data('media-params') || $();
 
     $otherTopGroups.removeClass('active').hide();
+    $otherLegendGroups.each(function () {
+      const $otherMediaParams = $(this).data('media-params');
+
+      if ($otherMediaParams) {
+        $otherMediaParams.hide();
+      }
+    });
     $topGroup.addClass('active').fadeIn();
+    $mediaParams.show();
     $legendGroup.addClass('active');
     $otherLegendGroups.removeClass('active');
 
@@ -132,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.setItem('last_active_group', selector);
       }
     } catch (e) {
-      console.warn('j51: localStorage not available', e);
+      console.warn(translate('TPL_J51_EMANI_JS_LOCAL_STORAGE_UNAVAILABLE', 'j51: localStorage is not available.'), e);
     }
   });
 
@@ -153,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     } catch (e) {
-      console.warn('j51: Could not restore last active group', e);
+      console.warn(translate('TPL_J51_EMANI_JS_LAST_GROUP_RESTORE_FAILED', 'j51: The last active group could not be restored.'), e);
     }
   }, 500);
 
@@ -167,43 +228,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const presetEl = document.querySelector('[name="preset"]');
       if (!presetEl) {
-        console.warn('j51: preset select element not found');
+        console.warn(translate('TPL_J51_EMANI_JS_PRESET_SELECT_MISSING', 'j51: The preset selector was not found.'));
         return;
       }
 
       const preset = presetEl.value;
 
+      if (!requestOptionsAreValid()) {
+        return;
+      }
+
       Joomla.request({
         method: 'POST',
-        url: 'index.php?option=com_ajax'
-          + '&template=' + j51Template
-          + '&format=json'
-          + '&method=loadPreset'
-          + '&preset=' + encodeURIComponent(preset)
-          + '&id=' + Joomla.getOptions('j51.template.style')
-          + '&' + Joomla.getOptions('csrf.token') + '=1',
+        url: buildAjaxUrl('loadPreset', 'json', { preset: preset }),
         onSuccess: function (data) {
           // ✅ try/catch für JSON.parse
           let json;
           try {
             json = JSON.parse(data);
           } catch (err) {
-            Joomla.renderMessages({ warning: ['Invalid server response'] });
+            Joomla.renderMessages({ warning: [translate('TPL_J51_EMANI_JS_INVALID_RESPONSE', 'The server returned an invalid response.')] });
             return;
           }
 
           if (!json.success) {
             Joomla.renderMessages({
-              warning: ['Preset could not be loaded: ' + json.message]
+              warning: [translate('TPL_J51_EMANI_JS_PRESET_LOAD_FAILED', 'The preset could not be loaded:') + ' ' + json.message]
             });
             return;
           }
 
-          alert('Preset got applied successfully! Page will reload.');
+          alert(translate('TPL_J51_EMANI_JS_PRESET_LOAD_SUCCESS', 'The preset was applied successfully. The page will now reload.'));
           window.location.reload();
         },
         onError: function () {
-          Joomla.renderMessages({ warning: ['Request failed. Please try again.'] });
+          Joomla.renderMessages({ warning: [translate('TPL_J51_EMANI_JS_REQUEST_FAILED', 'The request failed. Please try again.')] });
         }
       });
     });
@@ -217,13 +276,11 @@ document.addEventListener('DOMContentLoaded', function () {
     presetExport.addEventListener('click', function (e) {
       e.preventDefault();
 
-      // ✅ location.href statt location =
-      window.location.href = 'index.php?option=com_ajax'
-        + '&template=' + j51Template
-        + '&format=raw'
-        + '&method=export'
-        + '&id=' + Joomla.getOptions('j51.template.style')
-        + '&' + Joomla.getOptions('csrf.token') + '=1';
+      if (!requestOptionsAreValid()) {
+        return;
+      }
+
+      window.location.href = buildAjaxUrl('export', 'raw');
     });
   }
 
@@ -240,17 +297,16 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
+      if (!requestOptionsAreValid()) {
+        return;
+      }
+
       const reader = new FileReader();
 
       reader.onload = function (e) {
         Joomla.request({
           method: 'POST',
-          url: 'index.php?option=com_ajax'
-            + '&template=' + j51Template
-            + '&format=json'
-            + '&method=import'
-            + '&id=' + Joomla.getOptions('j51.template.style')
-            + '&' + Joomla.getOptions('csrf.token') + '=1',
+          url: buildAjaxUrl('import', 'json'),
           data: e.target.result,
           onSuccess: function (data) {
             // ✅ try/catch für JSON.parse
@@ -258,30 +314,30 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
               json = JSON.parse(data);
             } catch (err) {
-              Joomla.renderMessages({ warning: ['Invalid server response'] });
+              Joomla.renderMessages({ warning: [translate('TPL_J51_EMANI_JS_INVALID_RESPONSE', 'The server returned an invalid response.')] });
               return;
             }
 
             if (!json.success) {
               Joomla.renderMessages({
-                warning: ['Settings could not be imported: ' + json.message]
+                warning: [translate('TPL_J51_EMANI_JS_IMPORT_FAILED', 'The settings could not be imported:') + ' ' + json.message]
               });
               return;
             }
 
-            alert('Settings imported successfully! Page will reload.');
+            alert(translate('TPL_J51_EMANI_JS_IMPORT_SUCCESS', 'The settings were imported successfully. The page will now reload.'));
             window.location.reload();
           },
           onError: function () {
-            Joomla.renderMessages({ warning: ['Import request failed. Please try again.'] });
+            Joomla.renderMessages({ warning: [translate('TPL_J51_EMANI_JS_REQUEST_FAILED', 'The request failed. Please try again.')] });
           }
         });
       };
 
       // ✅ onError für FileReader
       reader.onerror = function () {
-        console.error('j51: FileReader error');
-        Joomla.renderMessages({ warning: ['Could not read file'] });
+        console.error(translate('TPL_J51_EMANI_JS_FILE_READ_FAILED_CONSOLE', 'j51: The preset file could not be read.'));
+        Joomla.renderMessages({ warning: [translate('TPL_J51_EMANI_JS_FILE_READ_FAILED', 'The selected file could not be read.')] });
       };
 
       reader.readAsText(file);

@@ -2,38 +2,37 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Helper\AuthenticationHelper;
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
 
-$app = Factory::getApplication();
-$wa  = $this->getWebAssetManager();
+$app          = Factory::getApplication();
+$extraButtons = AuthenticationHelper::getLoginButtons('form-login');
+$wa           = $this->getWebAssetManager();
 
-// ✅ HTMLHelper::_('behavior.core') ist in J4/J5 nicht mehr nötig
-// ✅ HTMLHelper::_('bootstrap.framework') deprecated - wa verwenden
-HTMLHelper::_('bootstrap.framework');
+$templatePath = 'templates/' . $this->template . '/css/';
 
-$wa->useStyle('template.nexus.min');
-$wa->useStyle('fontawesome');
-
-// ✅ require_once + UsersHelper komplett entfernt - in J4/J5 nicht mehr verfügbar
-// Zwei-Faktor wird jetzt über com_users MFA API gehandhabt
+$wa->registerAndUseStyle('j51.template.base', $templatePath . 'base/template.css')
+    ->registerAndUseStyle('j51.template.offline', $templatePath . 'offline.css')
+    ->registerAndUseStyle('j51.fontawesome', $templatePath . 'fontawesome/fontawesome.min.css')
+    ->registerAndUseStyle('j51.fontawesome.solid', $templatePath . 'fontawesome/solid.min.css', [], [], ['j51.fontawesome']);
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $this->language; ?>" dir="<?php echo $this->direction; ?>">
 <head>
-    <jdoc:include type="head" />
-    <?php if ($this->direction == 'rtl') : ?>
-        <link rel="stylesheet" href="<?php echo $this->baseurl; ?>/templates/system/css/offline_rtl.css" />
-    <?php endif; ?>
+    <jdoc:include type="metas" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <jdoc:include type="styles" />
+    <jdoc:include type="scripts" />
 </head>
 <body>
 <jdoc:include type="message" />
 
 <div id="frame" class="offline-wrapper">
     <?php if ($app->get('offline_image')) : ?>
-        <div style="margin-bottom: 1rem;">
+        <div class="offline-image">
             <?php echo HTMLHelper::_('image', $app->get('offline_image'), $app->get('sitename'), [], false, 0); ?>
         </div>
     <?php endif; ?>
@@ -58,7 +57,37 @@ $wa->useStyle('fontawesome');
                 <input type="password" name="password" class="inputbox" size="18" 
                        alt="<?php echo Text::_('JGLOBAL_PASSWORD'); ?>" id="passwd" />
             </p>
-            <!-- ✅ TwoFactor Block entfernt - wird in J4/J5 anders gehandhabt (MFA) -->
+            <?php foreach ($extraButtons as $button) : ?>
+                <?php
+                $dataAttributeKeys = array_filter(
+                    array_keys($button),
+                    static fn ($key) => str_starts_with($key, 'data-')
+                );
+                ?>
+                <p class="form-login-authentication">
+                    <button
+                        type="button"
+                        class="button login <?php echo $button['class'] ?? ''; ?>"
+                        <?php foreach ($dataAttributeKeys as $key) : ?>
+                            <?php echo $key; ?>="<?php echo $button[$key]; ?>"
+                        <?php endforeach; ?>
+                        <?php if (!empty($button['onclick'])) : ?>
+                            onclick="<?php echo $button['onclick']; ?>"
+                        <?php endif; ?>
+                        title="<?php echo Text::_($button['label']); ?>"
+                        id="<?php echo $button['id']; ?>"
+                    >
+                        <?php if (!empty($button['icon'])) : ?>
+                            <span class="<?php echo $button['icon']; ?>" aria-hidden="true"></span>
+                        <?php elseif (!empty($button['image'])) : ?>
+                            <?php echo $button['image']; ?>
+                        <?php elseif (!empty($button['svg'])) : ?>
+                            <?php echo $button['svg']; ?>
+                        <?php endif; ?>
+                        <?php echo Text::_($button['label']); ?>
+                    </button>
+                </p>
+            <?php endforeach; ?>
             <p id="submit-button">
                 <label>&nbsp;</label>
                 <input type="submit" name="Submit" class="button login" 

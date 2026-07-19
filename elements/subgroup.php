@@ -7,14 +7,13 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-// ✅ _JEXEC statt JPATH_PLATFORM
+// Direkten Zugriff verhindern.
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Form\FormField;
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\WebAsset\WebAssetManager;
 
 /**
@@ -145,16 +144,18 @@ class JFormFieldSubGroup extends FormField
     {
         // ✅ WebAssetManager statt deprecated $doc->addScript()
         $app = Factory::getApplication();
-        HTMLHelper::_('jquery.framework');
+        $templateName = basename(dirname(__DIR__));
 
-        // Aktuellen Style-ID für JS bereitstellen
+        // Template und aktuellen Stil für das Backend-Skript bereitstellen
         $app->getDocument()->addScriptOptions(
-            'j51.template.style',
-            $app->getInput()->getInt('id')
+            'j51.template',
+            [
+                'name'    => $templateName,
+                'styleId' => $app->getInput()->getInt('id'),
+            ]
         );
 
         // Template-Verzeichnis ermitteln
-        $templateName = basename(dirname(__DIR__));
         $scriptUrl    = Uri::root()
             . 'templates/'
             . $templateName
@@ -166,9 +167,9 @@ class JFormFieldSubGroup extends FormField
         $wa->registerAndUseScript(
             'j51.subgroup.script',  // Asset-Name (eindeutig)
             $scriptUrl,
-            [],                      // Options
+            ['version' => 'auto'],   // Options
             ['defer' => true],       // Attributes
-            []                       // Dependencies
+            ['jquery', 'core']       // Dependencies
         );
 
         return parent::setup($element, $value, $group);

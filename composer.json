@@ -1,16 +1,24 @@
 {
-	"config" : {
+	"name": "joomla51/j51-emani-template",
+	"description": "Emani site template maintained for native Joomla 6 operation",
+	"type": "joomla-template",
+	"license": "GPL-2.0-or-later",
+	"config": {
 		"platform": {
-			"php": "5.5.9"
-		}
+			"php": "8.3.0"
+		},
+		"sort-packages": true
 	},
-	"require" : {
+	"require": {
+		"php": ">=8.3",
 		"ciar4n/j51_framework": "dev-unstable"
 	},
 	"repositories": [
 		{
-			"url": "https://github.com/ciar4n/j51_framework",
+			"url": "https://github.com/ciar4n/j51_framework.git",
 			"type": "vcs"
 		}
-	]
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }

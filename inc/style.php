@@ -71,7 +71,41 @@ h4 {
     font-family: '.str_replace("+"," ",$h4head_fontstyle).', Arial, Verdana, sans-serif;
 }
 .hornav, .btn, .button, button {
-    font-family: '.str_replace("+"," ",$hornav_fontstyle).';
+    font-family: '.str_replace("+"," ",$hornav_fontstyle).', Arial, Verdana, sans-serif;
+}
+#hornav-nav.hornav > ul.mod-menu {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+    text-align: right;
+}
+#hornav-nav.hornav > ul.mod-menu > li.nav-item {
+    position: relative;
+    display: flex;
+    padding: 0;
+    margin: 0 15px;
+    list-style: none;
+}
+#hornav-nav.hornav > ul.mod-menu > li.nav-item:first-of-type {
+    margin-left: 0;
+}
+#hornav-nav.hornav > ul.mod-menu > li.nav-item > a,
+#hornav-nav.hornav > ul.mod-menu > li.nav-item > span {
+    display: block;
+    font-family: '.str_replace("+"," ",$hornav_fontstyle).', Arial, Verdana, sans-serif;
+    font-size: .85em;
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 1.25px;
+    line-height: 1rem;
+    padding: 20px 0;
+    margin: 0;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 .wrapper960 {
     width: '.$this->params->get('wrapper_width').'px;
@@ -94,6 +128,8 @@ h4 {
 }
 .hornav ul.menu li a,
 .hornav ul.menu li span,
+#hornav-nav.hornav > ul.mod-menu > li.nav-item > a,
+#hornav-nav.hornav > ul.mod-menu > li.nav-item > span,
 .hornav > ul > .parent::after {
     color: '.$this->params->get('hornav_font_color').';
 }
