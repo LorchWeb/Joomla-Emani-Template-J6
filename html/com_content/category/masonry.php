@@ -19,6 +19,13 @@ $wa       = $document->getWebAssetManager();
 
 HTMLHelper::addIncludePath(JPATH_COMPONENT . '/helpers');
 
+// Assets aus Emanis joomla.asset.json; falls Layout unter anderem Template genutzt wird (j51_emani:masonry), direkt registrieren
+foreach (['imagesloaded' => 'imagesloaded.pkgd.min.js', 'masonry' => 'masonry.pkgd.min.js'] as $assetKey => $assetFile) {
+    if (!$wa->assetExists('script', 'j51.template.' . $assetKey)) {
+        $wa->registerScript('j51.template.' . $assetKey, 'media/templates/site/j51_emani/js/' . $assetFile);
+    }
+}
+
 $wa->useScript('j51.template.imagesloaded');
 $wa->useScript('j51.template.masonry');
 
