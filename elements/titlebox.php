@@ -1,6 +1,6 @@
 <?php
 
-defined('JPATH_BASE') or die();
+\defined('_JEXEC') or die;
 
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Language\Text;

@@ -12,10 +12,10 @@ The companion modules are being migrated and tested separately. They will be pub
 - Joomla 6.x
 - PHP 8.3 or newer recommended
 - Designed to run without the Joomla **Behaviour – Backward Compatibility** plugin
-- Current template version: **2.1.0**
+- Current template version: **6.2.1** (uniform version scheme with the Nina and Layla migrations)
 - Update path intended for an existing Joomla 5 Emani template installation as well as installation on Joomla 6
 
-The current migration has been tested on Joomla 6.1.2 with PHP 8.3. A successful test on one environment does not guarantee compatibility with every hosting configuration, third-party extension, override, or customized Emani installation.
+Version 6.2.1 has been tested on Joomla 6.2.0 with PHP 8.4 (syntax checked against PHP 8.3); version 2.1.0 was tested on Joomla 6.1.2 with PHP 8.3. A successful test on one environment does not guarantee compatibility with every hosting configuration, third-party extension, override, or customized Emani installation.
 
 ## Installation and updates
 
@@ -27,6 +27,16 @@ The current migration has been tested on Joomla 6.1.2 with PHP 8.3. A successful
 6. Clear Joomla and browser caches, then verify the frontend, template styles, overrides, menus, modules, browser console, and server logs.
 
 This template package does not install, update, or remove any Joomla51 companion module.
+
+## Changes in 6.2.1
+
+- Masonry category layout no longer fails when it is used from a menu item while another template is active (`j51_emani:masonry`).
+- Joomla `icon-*` symbols (for example frontend edit buttons on modules) are shown again.
+- Status selector in the frontend article form is readable again.
+- Error page: corrected a language key that was renamed in Joomla 6.
+- Installer script: cleanup of obsolete override folders only runs when updating from versions before 2.0.0, so site-specific overrides are kept.
+- Missing `_JEXEC` guards added; internal working files removed from the package.
+- Template style details tab: "Project by Alpenrand Digital".
 
 ## Modules and demo content
 
@@ -55,3 +65,7 @@ Emani and the original template assets originate from Joomla51. This repository 
 No additional license grant for third-party code, fonts, images, design assets, trademarks, or other materials is implied by this repository. Users are responsible for confirming that they hold all rights and licenses required for their intended use and redistribution.
 
 Joomla! is a registered trademark of Open Source Matters, Inc.
+
+---
+
+Project by [Alpenrand Digital](https://alpenrand-digital.de).

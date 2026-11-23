@@ -1,8 +1,8 @@
 <?php
 defined('_JEXEC') or die('Restricted index access');
 
-// ✅ fontawesome wird bereits in head.php geladen - hier entfernen
-// $wa->useStyle('fontawesome'); // ENTFERNT - Duplikat
+// Core-Asset „fontawesome“ (joomla-fontawesome) wird für die icon-*-Klassen von Joomla benötigt (z. B. Bearbeiten-Symbole im Frontend) – wie im Original wieder aktiv
+$wa->useStyle('fontawesome');
 
 // ✅ KORRIGIERT: addStyleDeclaration -> addInlineStyle
 $wa->addInlineStyle('

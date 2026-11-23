@@ -11,3 +11,5 @@
     align-items: center;
     display: flex;
 }
+/* Alpenrand Digital 6.2.1: farbige Status-Auswahl (Frontend-Bearbeitung) lesbar – weißes select-bg.svg verdeckt sonst den Hintergrund, weiße Schrift unsichtbar */
+.form-select.form-select-color-state,.custom-select.form-select-color-state{color:#22262a}

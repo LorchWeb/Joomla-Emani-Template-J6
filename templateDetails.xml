@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="6.0" type="template" client="site" method="upgrade">
     <name>j51_emani</name>
-    <version>2.1.0</version>
-    <creationDate>2026-07</creationDate>
-    <author>Joomla51 (maintained by community)</author>
+    <version>6.2.1</version>
+    <creationDate>November 2026</creationDate>
+    <author>Joomla51 / Alpenrand Digital</author>
     <authorEmail>info@joomla51.com</authorEmail>
     <authorUrl>http://www.joomla51.com</authorUrl>
     <copyright>Joomla51</copyright>
@@ -168,6 +168,12 @@
 	</positions>
 <config>
 <fields name="params" addfieldpath="/templates/j51_emani/elements">
+
+	<!-- Hinweis auf dem Details-Reiter des Template-Stils (Fieldset "basic" wird dort von Joomla gerendert) -->
+	<fieldset name="basic">
+		<field name="alpenrand_note" type="note" description="TPL_J51_EMANI_ALPENRAND_NOTE" />
+	</fieldset>
+
 
 
 	<fieldset name="H3GENERAL" >	

@@ -527,3 +527,23 @@ Fünf repräsentative Serverdateien – Manifest, Helper, Jarallax-Skripteinbind
 Die sieben Serverlogs nach Deinstallation, Neuinstallation, Stilimport und Frontendtests liegen unter `build/log-after-paket5-freshinstall-20260718/`. Sechs Dateien sind gegenüber dem Paket-5-Update-Stand bytegleich. Nur `jcontroller.log.php` enthält zusätzliche normale Backendaktivität. Die Suche ergab keine Deprecated-, Fatal-, Uncaught-, PHP-Warning-, PHP-Notice-, Exception- oder WebAsset-Meldungen.
 
 Damit sind sowohl der maßgebliche Updatepfad von einem vorhandenen Joomla-5-Emani als auch die frische Installation des Release-ZIPs unter Joomla 6.1.2 nachgewiesen. Paket 5 und die geplante Joomla-6-Migration sind abgeschlossen.
+
+## Release 6.2.1 (November 2026)
+
+Gemeinsamer Release mit den Migrationen von Nina und Layla; alle drei Templates tragen ab jetzt dieselbe Versionsnummer.
+
+Geprüft gegen Joomla 6.2.0 (Core-Quellcode) und auf der Testinstallation unter Joomla 6.2.0 mit PHP 8.4, Plugin **Behaviour – Backward Compatibility 6** deaktiviert. PHP-Lint unter PHP 8.3, statische Legacy-Suche ohne Treffer, alle `Text::_()`-Schlüssel gegen die Joomla-6-Sprachdateien abgeglichen.
+
+Änderungen:
+
+- `html/com_content/category/masonry.php`: Skripte `j51.template.imagesloaded` und `j51.template.masonry` werden selbst registriert, falls Emanis `joomla.asset.json` nicht geladen ist. Vorher führte ein Menüpunkt mit Layout `j51_emani:masonry` unter einem anderen Standard-Template zu Fehler 500 (`UnknownAssetException`).
+- `inc/style.php`: Core-Asset `fontawesome` wieder aktiv (war als „Duplikat“ entfernt worden). Ohne dieses Asset fehlen die Joomla-`icon-*`-Klassen, z. B. die Bearbeiten-Symbole an Modulen im Frontend.
+- `css/base/template.css`, `media/css/base/template.css`: farbige Status-Auswahl (`form-select-color-state`) im Frontend-Beitragsformular lesbar; das weiße `select-bg.svg` verdeckte den Hintergrund, die weiße Schrift war unsichtbar.
+- `error.php`: Sprachschlüssel `JERROR_LAYOUT_MIS_TYPED_ADDRESS` → `JERROR_LAYOUT_MISTYPED_ADDRESS` (in Joomla 6 umbenannt).
+- `update.php`: Bereinigung alter Override-Ordner und -Dateien nur noch beim Update von Versionen vor 2.0.0 (Vorgängerversion wird im `preflight` aus `manifest_cache` gelesen). Bei neueren Ständen enthalten diese Ordner nur noch kundeneigene Overrides.
+- `elements/infobox.php`, `noticebox.php`, `titlebox.php`: `\defined('_JEXEC') or die;` statt `JPATH_BASE`-Prüfung.
+- `templateDetails.xml`: Version 6.2.1, Autor „Joomla51 / Alpenrand Digital“, Hinweis „Project by Alpenrand Digital“ auf dem Details-Reiter (Fieldset `basic`, Sprachschlüssel `TPL_J51_EMANI_ALPENRAND_NOTE` in de-DE und en-GB).
+- Arbeitsdateien `dateiliste.txt` / `dateiliste.txt.bak` (enthielten lokale Pfade) entfernt.
+
+Laufzeittest: Update von 6.2.1-Vorstand auf der Testinstallation, Startseite, Alternative-Blog, Masonry-Blog, Beitragsansicht, Suche (Smart Search), 404-Seite ohne PHP-Fehler; Frontend-Bearbeitung mit Speichern; Browserkonsole ohne Fehler aus dem Template.
+
